@@ -4,7 +4,8 @@
 |#|file name|description|
 |---|---|---|
 |1|download_model.py|Download a LLM model, and convert it into OpenVINO IR model|
-|2|inference.py|Run an LLM model with OpenVINO|
+|2|inference.py|Run an LLM model with OpenVINO.|
+|3|inference-stream.py|Run an LLM model with OpenVINO. Display the answer in streaming mode (word by word).|
 
 ## How to run
 
@@ -27,7 +28,11 @@ python download_model.py
 3. Run inference
 ```sh
 python inference.py
+# or
+python inference-stream.py
 ```
+
+![stream.gif](./resources/stream.gif)
 
 ## Test environment
 - Windows 11

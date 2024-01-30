@@ -1,5 +1,5 @@
-#model_vendor, model_name = 'TinyLlama', 'TinyLlama-1.1B-Chat-v1.0'
-model_vendor, model_name = 'Intel', 'neural-chat-7b-v3'
+model_vendor, model_name = 'TinyLlama', 'TinyLlama-1.1B-Chat-v1.0'
+#model_vendor, model_name = 'Intel', 'neural-chat-7b-v3'
 
 FP16_GEN, INT8_GEN, INT4_GEN = True, True, True
 
