@@ -1,0 +1,5 @@
+openvino
+optimum-intel
+transformers[ja]
+onnx
+nncf[pytorch,tensorflow]
