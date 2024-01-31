@@ -32,7 +32,13 @@ python inference.py
 python inference-stream.py
 ```
 
-![stream.gif](./resources/stream.gif)
+![stream.gif GitHub repository](./resources/stream.gif)
+
+
+## Official '`optimum-intel`' documents  
+Following web sites are also infomative and helpful for `optimum-intel` users.  
+- ['optimum-intel' GitGHub Repository](https://github.com/huggingface/optimum-intel)  
+- [Detailed description of inference API](https://huggingface.co/docs/optimum/intel/inference)
 
 ## Test environment
 - Windows 11
