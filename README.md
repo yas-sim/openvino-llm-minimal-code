@@ -24,6 +24,10 @@ pip install -r requirements.txt
 ```sh
 python download_model.py
 ```
+**Hint**: You can use `optimum-cli` tool to download the models from Huggingface hub, too.  
+```sh
+optimum-cli export openvino -m intel/neural-chat-7b-v3 --weight-format int4_sym_g64 neural-chat-7b-v3/INT4
+```
 
 3. Run inference
 ```sh
