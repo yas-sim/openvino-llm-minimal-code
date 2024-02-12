@@ -15,43 +15,42 @@ model_precision = ['FP16', 'INT8', 'INT4'][2]
 
 print(f'LLM model: {model_vendor}/{model_name}, {model_precision}')
 
+
 tokenizer = AutoTokenizer.from_pretrained(f'{model_vendor}/{model_name}')
 
+
 device = 'CPU'
-batch_size = 1
 
 ov_core = ov.Core()
 ov_config={"PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": "1", "CACHE_DIR": ""}
-
 ov_model = ov_core.read_model(model=f'{model_name}/{model_precision}/openvino_model.xml')
 print(f'Compiling the model to {device}')
 compiled_model = ov.compile_model(ov_model, device, ov_config)
 infer_request = compiled_model.create_infer_request()
 
-input_text = 'Explain the plot of Cinderella in a sentence.'
-input_text = 'What is the best food in Tokyo? '
+
+input_text = 'Explain the plot of Cinderella in a sentence. \n\n'
+input_text = 'What is the best food in Tokyo? \n\n'
 print(f'Input text: {input_text}')
 
-pad_token = tokenizer.pad_token if tokenizer.pad_token is not None else '[PAD]'
-input_tokens = tokenizer(
-    text                = input_text,
-    return_tensors      = 'pt',
-)
-input_ids       = np.array([ input_tokens.input_ids[0]      for _ in range(batch_size) ], dtype=np.int64)
-attention_mask  = np.array([ input_tokens.attention_mask[0] for _ in range(batch_size) ], dtype=np.int64)
-max_token_length = input_ids.shape[1]
-position_ids    = np.array([ range(max_token_length)        for _ in range(batch_size) ], dtype=np.int64)
-beam_idx        = np.array([ 0                              for _ in range(batch_size) ], dtype=np.int32)
+# Tokenize (text -> token IDs)
+input_tokens = tokenizer(text=input_text, return_tensors='pt',)
+input_ids      = input_tokens.input_ids
+attention_mask = input_tokens.attention_mask
+position_ids   = np.array([range(input_ids.shape[-1])], dtype=np.int64)
+beam_idx       = [1]
+
 
 def softmax(x):
     x = x - np.max(x, axis=0)
     return np.exp(x) / np.sum(np.exp(x), axis=0)
 
+
 prev_output = ''
 generated_text_ids = np.array([], dtype=np.int32)
 
 # Sampling parameters for generated word
-temperature = 0.5
+temperature = 1.0
 top_p = 0.85
 top_k = 10
 
@@ -65,20 +64,14 @@ print(f'Sampling parameters - Temperature: {temperature}, Top-p: {top_p}, Top-k:
 eos_token_id = tokenizer.eos_token_id
 num_max_token_for_generation = 300
 
-beam_idx = [ batch_size for _ in range(batch_size) ]
+beam_idx = [1]
 
 for i in range(num_max_token_for_generation):
 
     # Run inference (to generate the logits for the next word prediction)
     infer_request.reset_state()
-    response = infer_request.infer(
-        inputs={
-            'input_ids'     : input_ids,
-            'attention_mask': attention_mask,
-            'position_ids'  : position_ids,
-            'beam_idx'      : beam_idx
-        },
-    )
+    response = infer_request.infer(inputs={'input_ids':input_ids, 'attention_mask':attention_mask, 'position_ids':position_ids, 'beam_idx':beam_idx})
+
     # Basic post process (logits->probabilities, sort)
     next_token_prob = softmax(response['logits'][0, -1, :])     # Apply softmax
     next_token_prob /= temperature                              # Scale probabilities by 'temperature' parameter
