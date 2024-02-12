@@ -6,6 +6,7 @@
 |1|download_model.py|Download a LLM model, and convert it into OpenVINO IR model|
 |2|inference.py|Run an LLM model with OpenVINO.|
 |3|inference-stream.py|Run an LLM model with OpenVINO. Display the answer in streaming mode (word by word).|
+|4|inference-stream-openvino-only.py|Run an LLM model with only OpenVINO (+HF tokenizer). This program doesn't require any DL frameworks such as TF or PyTorch. Also, this program even doesn't use '`optimum-intel`' library to run.| 
 
 ## How to run
 
@@ -24,7 +25,7 @@ pip install -r requirements.txt
 ```sh
 python download_model.py
 ```
-**Hint**: You can use `optimum-cli` tool to download the models from Huggingface hub, too.  
+**Hint**: You can use `optimum-cli` tool to download the models from Huggingface hub, too. You need to install `optimum-intel` Python package to export the model for OpenVINO.  
 ```sh
 optimum-cli export openvino -m intel/neural-chat-7b-v3 --weight-format int4_sym_g64 neural-chat-7b-v3/INT4
 ```
