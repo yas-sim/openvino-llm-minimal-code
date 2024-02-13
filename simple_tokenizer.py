@@ -21,6 +21,7 @@ class SimpleTokenizer:
             self.tokenizer_json = json.load(f)
         vocab_orig = self.tokenizer_json['model']['vocab']                          # Obtain the vocaburary dictionary
         vocab = dict()
+        self.decode_list = [''] * len(vocab_orig)
         for key, val in vocab_orig.items():                                         # Do some translations and conversions
             key = key.replace('▁', ' ')
             m = re.match(r'^<(0x[0-9A-F]{2})>$', key)                               # Find "<0xXX>"
@@ -28,6 +29,7 @@ class SimpleTokenizer:
                 hex_val = m.groups()[0]
                 key = chr(int(hex_val, 16))                                         # "<0xXX>" -> charactor
             vocab[key] = val
+            self.decode_list[val] = key                 # list for decoding
         vocab = sorted(vocab.items(), key=lambda x:len(x[0]), reverse=True)         # Sort by the length of the keyword
         self.vocab = dict((x, y) for x, y in vocab)                                 # Convert back to dict
         self.num_vocab = len(self.vocab)
@@ -84,7 +86,5 @@ class SimpleTokenizer:
     def decode(self, token_ids:list[int]) -> str:
         text = ''
         for token_id in token_ids:
-            for key, val in self.vocab.items():
-                if val == token_id:
-                    text += key
+            text += self.decode_list[token_id]
         return text
