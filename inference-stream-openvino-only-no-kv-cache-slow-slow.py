@@ -4,9 +4,10 @@
 # *** This program is developed just to demonstrate how much KV-caching improves the LLM inference performance
 
 import numpy as np
-
 import openvino as ov
-from transformers import AutoTokenizer
+
+from simple_tokenizer import *
+from misc import softmax
 
 model_vendor, model_name = [
     [ 'TinyLlama',  'TinyLlama-1.1B-Chat-v1.0'],
@@ -17,9 +18,9 @@ model_precision = ['FP16', 'INT8', 'INT4'][2]
 
 print(f'LLM model: {model_vendor}/{model_name}, {model_precision}')
 
-
-tokenizer = AutoTokenizer.from_pretrained(f'{model_vendor}/{model_name}')
-
+#from transformers import AutoTokenizer
+#tokenizer = AutoTokenizer.from_pretrained(f'{model_vendor}/{model_name}')
+tokenizer = SimpleTokenizer(model_vendor, model_name)
 
 device = 'CPU'
 ov_core = ov.Core()
@@ -36,17 +37,12 @@ print(f'Input text: {input_text}')
 
 # Tokenize the input text (text -> token IDs)
 # - The model input for the 1st iteration
-input_tokens = tokenizer(text=input_text, return_tensors='pt',)
+input_tokens = tokenizer(text=input_text, return_tensors='np')
 input_ids      = input_tokens.input_ids
 attention_mask = input_tokens.attention_mask
 position       = input_ids.shape[-1]
 position_ids   = np.array([range(position)], dtype=np.int64)
 beam_idx       = np.array([0], dtype=np.int32)
-
-
-def softmax(x):
-    x = x - np.max(x, axis=0)
-    return np.exp(x) / np.sum(np.exp(x), axis=0)
 
 
 # Sampling parameters for generated word
