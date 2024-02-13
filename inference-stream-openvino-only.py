@@ -17,10 +17,9 @@ model_precision = ['FP16', 'INT8', 'INT4'][2]
 
 print(f'LLM model: {model_vendor}/{model_name}, {model_precision}')
 
-
 #from transformers import AutoTokenizer
-#tokenizer = AutoTokenizer.from_pretrained(f'{model_vendor}/{model_name}')
-tokenizer = SimpleTokenizer(model_vendor, model_name)               # (somewhat) compatible tokenizer with HuggingFace tokenizers
+#tokenizer = AutoTokenizer.from_pretrained(f'{model_vendor}/{model_name}')  # Fast and reliable :-)
+tokenizer = SimpleTokenizer(model_vendor, model_name)                       # (somewhat) compatible tokenizer with HuggingFace tokenizers (simple, slow, and dumb)
 
 device = 'CPU'
 ov_core = ov.Core()
@@ -101,6 +100,7 @@ for i in range(num_max_token_for_generation):
     output_text = tokenizer.decode(generated_text_ids)              # Decode and generate the text from the array of token IDs
     print(output_text[len(prev_output):], end='', flush=True)       # Print only the last generated word
     prev_output = output_text
+    #print(tokenizer.decode([sampled_id]), end='', flush=True)
 
     # Supply only the last predicted (sampled) word ID as the model input from the 2nd iteration, and the latter
     # ** This is possible only for the 'stateful' model with KV caching enabled. **

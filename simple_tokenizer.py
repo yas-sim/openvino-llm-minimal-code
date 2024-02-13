@@ -2,11 +2,16 @@ import os
 import re
 import subprocess
 import numpy as np
+import logging
 
 import json
 
+logging.basicConfig(level=logging.INFO)
+
 class SimpleTokenizer:
     def __init__(self, model_vendor, model_name):
+        self.logger = logging.getLogger(__name__)
+        self.logger.info('You are using \'SimpleTokenizer\' which is low-performance.')
         self.tokenizer_dir = f'./{model_vendor}--{model_name}--tokenizer'
         # Download data files
         if not os.path.exists(self.tokenizer_dir):

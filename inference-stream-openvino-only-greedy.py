@@ -17,10 +17,9 @@ model_precision = ['FP16', 'INT8', 'INT4'][2]
 
 print(f'LLM model: {model_vendor}/{model_name}, {model_precision}')
 
-
 #from transformers import AutoTokenizer
-#tokenizer = AutoTokenizer.from_pretrained(f'{model_vendor}/{model_name}')
-tokenizer = SimpleTokenizer(model_vendor, model_name)               # (somewhat) compatible tokenizer with HuggingFace tokenizers
+#tokenizer = AutoTokenizer.from_pretrained(f'{model_vendor}/{model_name}')  # Fast and reliable :-)
+tokenizer = SimpleTokenizer(model_vendor, model_name)                       # (somewhat) compatible tokenizer with HuggingFace tokenizers (simple, slow, and dumb)
 
 device = 'CPU'
 ov_core = ov.Core()
