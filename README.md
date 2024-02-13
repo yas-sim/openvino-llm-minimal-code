@@ -8,6 +8,7 @@
 |3|inference-stream.py|Run an LLM model with OpenVINO and `optimum-intel`. Display the answer in streaming mode (word by word).|
 |4|inference-stream-openvino-only.py|Run an LLM model with only OpenVINO. This program doesn't require any DL frameworks such as TF or PyTorch. Also, this program doesn't even use the '`optimum-intel`' library or HuggingFace tokenizers to run. This program uses a simple and dumb tokenizer instead of HF tokenizers.<br>Try swapping the tokenizer to HF tokenizer in case you see only garbage text from the program (uncomment `AutoTokenizer` and comment out `SimpleTokenizer`)| 
 |5|inference-stream-openvino-only-no-kv-cache-slow-slow.py|Same as program #4 but doesn't use KV-cache. This program calculates KV values on every iteration and is very slow. You can compare the performance of #4 and #5 and understand how much KV-caching improves the LLM inference performance.|
+|6|inference-stream-openvino-only-greedy.py|Same as program #4 but uses 'greedy decoding' instead of sampling. This program generates fixed output text because it always picks the most probability token ID from the predictions.|
 
 ## How to run
 
