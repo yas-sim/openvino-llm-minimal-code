@@ -29,7 +29,7 @@ class SimpleTokenizer:
                 hex_val = m.groups()[0]
                 key = chr(int(hex_val, 16))                                         # "<0xXX>" -> charactor
             vocab[key] = val
-            self.decode_list[val] = key                 # list for decoding
+            self.decode_list[val] = key                                             # list for decoding
         vocab = sorted(vocab.items(), key=lambda x:len(x[0]), reverse=True)         # Sort by the length of the keyword
         self.vocab = dict((x, y) for x, y in vocab)                                 # Convert back to dict
         self.num_vocab = len(self.vocab)

@@ -100,7 +100,6 @@ for i in range(num_max_token_for_generation):
     output_text = tokenizer.decode(generated_text_ids)              # Decode and generate the text from the array of token IDs
     print(output_text[len(prev_output):], end='', flush=True)       # Print only the last generated word
     prev_output = output_text
-    #print(tokenizer.decode([sampled_id]), end='', flush=True)
 
     # Supply only the last predicted (sampled) word ID as the model input from the 2nd iteration, and the latter
     # ** This is possible only for the 'stateful' model with KV caching enabled. **
