@@ -4,9 +4,10 @@
 |#|file name|description|
 |---|---|---|
 |1|download_model.py|Download a LLM model, and convert it into OpenVINO IR model|
-|2|inference.py|Run an LLM model with OpenVINO.|
-|3|inference-stream.py|Run an LLM model with OpenVINO. Display the answer in streaming mode (word by word).|
+|2|inference.py|Run an LLM model with OpenVINO. One of the most simple LLM inferencing code with OpenVINO and the `optimum-intel` library.|
+|3|inference-stream.py|Run an LLM model with OpenVINO and `optimum-intel`. Display the answer in streaming mode (word by word).|
 |4|inference-stream-openvino-only.py|Run an LLM model with only OpenVINO (+HF tokenizer). This program doesn't require any DL frameworks such as TF or PyTorch. Also, this program even doesn't use '`optimum-intel`' library to run.| 
+|5|inference-stream-openvino-only-no-kv-cache-slow-slow.py|Same as program #4 but doesn't use KV-cache. This program calculates KV values on every iteration and is very slow. You can compare the performance of #4 and #5 and understand how much KV-caching improves the LLM inference performance.|
 
 ## How to run
 

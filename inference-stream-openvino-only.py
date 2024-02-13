@@ -20,7 +20,6 @@ tokenizer = AutoTokenizer.from_pretrained(f'{model_vendor}/{model_name}')
 
 
 device = 'CPU'
-
 ov_core = ov.Core()
 ov_config={"PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": "1", "CACHE_DIR": ""}
 ov_model = ov_core.read_model(model=f'{model_name}/{model_precision}/openvino_model.xml')
@@ -33,13 +32,14 @@ input_text = 'Explain the plot of Cinderella in a sentence. \n\n'
 input_text = 'What is the best food in Tokyo? \n\n'
 print(f'Input text: {input_text}')
 
-# Tokenize (text -> token IDs)
+# Tokenize the input text (text -> token IDs)
+# - The model input for the 1st iteration
 input_tokens = tokenizer(text=input_text, return_tensors='pt',)
 input_ids      = input_tokens.input_ids
 attention_mask = input_tokens.attention_mask
 position       = input_ids.shape[-1]
 position_ids   = np.array([range(position)], dtype=np.int64)
-beam_idx       = [1]
+beam_idx       = np.array([0], dtype=np.int32)
 
 
 def softmax(x):
@@ -47,25 +47,22 @@ def softmax(x):
     return np.exp(x) / np.sum(np.exp(x), axis=0)
 
 
-prev_output = ''
-generated_text_ids = np.array([], dtype=np.int32)
-
 # Sampling parameters for generated word
 temperature = 1.0
 top_p = 0.85
 top_k = 10
 
-# limit parameters
+# Limit the range of sampling parameters
 temperature = 1.0 if temperature <= 0 else temperature
 top_p = max(0.0, min(1.0, top_p))
 top_k = max(0.0, top_k)
 
 print(f'Sampling parameters - Temperature: {temperature}, Top-p: {top_p}, Top-k: {top_k}')
 
+prev_output = ''
+generated_text_ids = np.array([], dtype=np.int32)
 eos_token_id = tokenizer.eos_token_id
 num_max_token_for_generation = 300
-
-beam_idx = [0]
 
 infer_request.reset_state()                                     # Initialize model internal state
 
@@ -98,14 +95,13 @@ for i in range(num_max_token_for_generation):
         if sum_prob >= rand:                                    # Break when the accumulated probability exceeds sampling target value
             break
     
-    sampled_id = sorted_index[sample]                           # Pick a word ID
+    sampled_id = sorted_index[sample]                           # Pick a word ID (= predicted next word ID)
     if sampled_id == eos_token_id:
         print('\n*** EOS token detected.')
         break
-    generated_text_ids = np.append(generated_text_ids, sampled_id)
-
-    output_text = tokenizer.decode(generated_text_ids)          # Decode and generate the text from the array of token IDs
-    print(output_text[len(prev_output):], end='', flush=True)   # Print only the last generated word
+    generated_text_ids = np.append(generated_text_ids, sampled_id)  # Append the predicted word to the bottom of the generated text ID array
+    output_text = tokenizer.decode(generated_text_ids)              # Decode and generate the text from the array of token IDs
+    print(output_text[len(prev_output):], end='', flush=True)       # Print only the last generated word
     prev_output = output_text
 
     # Supply only the last predicted (sampled) word ID as the model input from the 2nd iteration, and the latter
