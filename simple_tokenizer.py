@@ -14,9 +14,17 @@ class SimpleTokenizer:
 
         with open(f'{self.tokenizer_dir}/tokenizer.json', encoding='utf8') as f:
             self.tokenizer_json = json.load(f)
-        vocab = self.tokenizer_json['model']['vocab']                           # Obtain the vocaburary dictionary
-        vocab = sorted(vocab.items(), key=lambda x:len(x[0]), reverse=True)     # Sord by the length of the keyword
-        self.vocab = dict((x.replace('▁', ' '), y) for x, y in vocab)
+        vocab_orig = self.tokenizer_json['model']['vocab']                          # Obtain the vocaburary dictionary
+        vocab = dict()
+        for key, val in vocab_orig.items():                                         # Do some translations and conversions
+            key = key.replace('▁', ' ')
+            m = re.match(r'^<(0x[0-9A-F]{2})>$', key)                               # Find "<0xXX>"
+            if m is not None:
+                hex_val = m.groups()[0]
+                key = chr(int(hex_val, 16))                                         # "<0xXX>" -> charactor
+            vocab[key] = val
+        vocab = sorted(vocab.items(), key=lambda x:len(x[0]), reverse=True)         # Sord by the length of the keyword
+        self.vocab = dict((x, y) for x, y in vocab)                                 # Convert back to dict
         self.num_vocab = len(self.vocab)
 
         with open(f'{self.tokenizer_dir}/special_tokens_map.json', encoding='utf8') as f:
@@ -73,9 +81,5 @@ class SimpleTokenizer:
         for token_id in token_ids:
             for key, val in self.vocab.items():
                 if val == token_id:
-                    m = re.match(r'^<(0x[0-9A-F]{2})>$', key)   # Find "<0xXX>"
-                    if m is not None:
-                        text += chr(int(m.groups()[0], 16))     # "<0xXX>" -> charactor
-                    else:
-                        text += key
+                    text += key
         return text
