@@ -2,8 +2,8 @@ from optimum.intel.openvino import OVModelForCausalLM
 from transformers import AutoTokenizer, AutoConfig
 from transformers.generation.streamers import TextStreamer
 
-#model_vendor, model_name = 'TinyLlama', 'TinyLlama-1.1B-Chat-v1.0'
-model_vendor, model_name = 'Intel', 'neural-chat-7b-v3'
+model_vendor, model_name = 'TinyLlama', 'TinyLlama-1.1B-Chat-v1.0'
+#model_vendor, model_name = 'Intel', 'neural-chat-7b-v3'
 
 model_precision = ['FP16', 'INT8', 'INT4'][2]
 
@@ -37,8 +37,5 @@ You are a helpful, respectful and honest assistant. Always answer as helpfully a
 
 print('Question:', question)
 streamer = TextStreamer(tokenizer, skip_prompt=True)
-input_tokens = tokenizer(prompt_text_neuralchat, return_tensors='pt', add_special_tokens=False)
-response = ov_model.generate(**input_tokens, max_new_tokens=300, temperature=0.2, do_sample=True, top_k=5, top_p=0.8, repetition_penalty=1.2, num_return_sequences=1, streamer=streamer)
-#response_text = tokenizer.decode(response[0], skip_special_tokens=True)
-#print(response_text.split('[/INST]\n')[-1])             # TinyLlama
-#print(response_text.split('### Assistant:\n')[-1])      # NeuralChat
+input_tokens = tokenizer(prompt_text_llama, return_tensors='pt', add_special_tokens=False)
+response = ov_model.generate(**input_tokens, max_new_tokens=300, temperature=1.0, do_sample=True, top_k=5, top_p=0.85, repetition_penalty=1.2, num_return_sequences=1, streamer=streamer)
