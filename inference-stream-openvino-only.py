@@ -1,4 +1,4 @@
-# Run an LLM chat model only with OpenVINO
+# Run an LLM chat model only with OpenVINO (supports only the stateful, KV-caching enabled LLM models)
 #  - Without 'optimum-intel' and 'PyTorch' (but HF-Tokenizer)
 
 import numpy as np
@@ -37,7 +37,8 @@ print(f'Input text: {input_text}')
 input_tokens = tokenizer(text=input_text, return_tensors='pt',)
 input_ids      = input_tokens.input_ids
 attention_mask = input_tokens.attention_mask
-position_ids   = np.array([range(input_ids.shape[-1])], dtype=np.int64)
+position       = input_ids.shape[-1]
+position_ids   = np.array([range(position)], dtype=np.int64)
 beam_idx       = [1]
 
 
@@ -64,12 +65,13 @@ print(f'Sampling parameters - Temperature: {temperature}, Top-p: {top_p}, Top-k:
 eos_token_id = tokenizer.eos_token_id
 num_max_token_for_generation = 300
 
-beam_idx = [1]
+beam_idx = [0]
+
+infer_request.reset_state()                                     # Initialize model internal state
 
 for i in range(num_max_token_for_generation):
 
     # Run inference (to generate the logits for the next word prediction)
-    infer_request.reset_state()
     response = infer_request.infer(inputs={'input_ids':input_ids, 'attention_mask':attention_mask, 'position_ids':position_ids, 'beam_idx':beam_idx})
 
     # Basic post process (logits->probabilities, sort)
@@ -106,9 +108,12 @@ for i in range(num_max_token_for_generation):
     print(output_text[len(prev_output):], end='', flush=True)   # Print only the last generated word
     prev_output = output_text
 
-    # Add the last generated token ID to the bottom of the input_ids (, and extend attention mask and position_ids accordingly)
-    input_ids = np.append(input_ids, [[sampled_id]], axis=1)
-    attention_mask = np.append(attention_mask, [[1]], axis=1)
-    position_ids = np.append(position_ids, [[len(position_ids[0])]], axis=1)
+    # Supply only the last predicted (sampled) word ID as the model input from the 2nd iteration, and the latter
+    # ** This is possible only for the 'stateful' model with KV caching enabled. **
+    input_ids      = np.array([[sampled_id]], dtype=np.int64)
+    attention_mask = np.array([[1]], dtype=np.int64)
+    position_ids   = np.array([[position]], dtype=np.int64)
+    beam_idx       = np.array([0], dtype=np.int32)
+    position      += 1
 
 print(f'\n\n*** Completed.')
