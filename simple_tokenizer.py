@@ -23,7 +23,7 @@ class SimpleTokenizer:
                 hex_val = m.groups()[0]
                 key = chr(int(hex_val, 16))                                         # "<0xXX>" -> charactor
             vocab[key] = val
-        vocab = sorted(vocab.items(), key=lambda x:len(x[0]), reverse=True)         # Sord by the length of the keyword
+        vocab = sorted(vocab.items(), key=lambda x:len(x[0]), reverse=True)         # Sort by the length of the keyword
         self.vocab = dict((x, y) for x, y in vocab)                                 # Convert back to dict
         self.num_vocab = len(self.vocab)
 

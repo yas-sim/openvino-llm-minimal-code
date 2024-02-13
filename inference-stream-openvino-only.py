@@ -5,7 +5,7 @@
 import numpy as np
 import openvino as ov
 
-from simple_tokenizer import *
+from simple_tokenizer import SimpleTokenizer
 from misc import softmax
 
 model_vendor, model_name = [
