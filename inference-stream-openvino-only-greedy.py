@@ -1,5 +1,6 @@
 # Run an LLM chat model only with OpenVINO (supports only the stateful, KV-caching enabled LLM models)
-#  - Without 'optimum-intel' and 'PyTorch' (but HF-Tokenizer)
+#  - Without 'optimum-intel', 'PyTorch' and HF-Tokenizers.
+#  This program uses 'greedy decoding' to generate the output text.
 
 import numpy as np
 import openvino as ov
