@@ -48,8 +48,8 @@ You are a helpful, respectful and honest assistant. Always answer as helpfully a
 ### Assistant:
 """
 
-#input_text = prompt_text_tinyllama.format(question=question)
-input_text = prompt_text_neuralchat.format(question=question)
+input_text = prompt_text_tinyllama.format(question=question)
+#input_text = prompt_text_neuralchat.format(question=question)
 print(f'Question: {question}')
 
 # Tokenize the input text (text -> token IDs)
