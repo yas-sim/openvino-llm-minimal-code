@@ -30,9 +30,27 @@ compiled_model = ov.compile_model(ov_model, device, ov_config)
 infer_request = compiled_model.create_infer_request()
 
 
-input_text = 'Explain the plot of Cinderella in a sentence. \n\n'
-input_text = 'What is the best food in Tokyo? \n\n'
-print(f'Input text: {input_text}')
+question = 'Explain the plot of Cinderella in a sentence.'
+question = 'What is the best food in Tokyo?'
+prompt_text_tinyllama = f"""\
+<|system|>
+You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. If a question does not make any sense or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.</s>
+<|user|>
+{question}</s>
+<|assistant|>
+"""
+
+prompt_text_neuralchat = f"""\
+### System:
+You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. If a question does not make any sense or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.
+### User:
+{question}
+### Assistant:
+"""
+
+#input_text = prompt_text_tinyllama.format(question=question)
+input_text = prompt_text_neuralchat.format(question=question)
+print(f'Question: {question}')
 
 # Tokenize the input text (text -> token IDs)
 # - The model input for the 1st iteration

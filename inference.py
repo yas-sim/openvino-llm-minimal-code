@@ -26,12 +26,12 @@ print(response_text)
 
 # Generation with a prompt message
 question = 'Explain the plot of Cinderella in a sentence.'
-prompt_text_llama = f"""\
-<s>[INST] <<SYS>>
-You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. If a question does not make any sense or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.
-<</SYS>>
-
-{question} [/INST]
+prompt_text_tinyllama = f"""\
+<|system|>
+You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. If a question does not make any sense or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.</s>
+<|user|>
+{question}</s>
+<|assistant|>
 """
 
 prompt_text_neuralchat = f"""\
@@ -43,7 +43,7 @@ You are a helpful, respectful and honest assistant. Always answer as helpfully a
 """
 
 print('Question:', question)
-input_tokens = tokenizer(prompt_text_llama, return_tensors='pt', add_special_tokens=False)
+input_tokens = tokenizer(prompt_text_tinyllama, return_tensors='pt', add_special_tokens=False)
 response = ov_model.generate(**input_tokens, max_new_tokens=300, temperature=1.0, do_sample=True, top_k=10, top_p=0.85, repetition_penalty=1.2, num_return_sequences=1)
 response_text = tokenizer.decode(response[0], skip_special_tokens=True)
 print(response_text.split('[/INST]\n')[-1])             # TinyLlama
