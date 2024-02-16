@@ -11,7 +11,7 @@ print(f'LLM model: {model_id}, {model_precision}')
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 ov_model = OVModelForCausalLM.from_pretrained(
-    model_id = f'{model_name}/{model_precision}',
+    model_id = f'{model_name}/{model_precision}',   # <- OpenVINO model directory. This directory must contain 'openvino_model[.xml|.bin]' and 'config.json'.
     device='CPU',
     ov_config={"PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": "1", "CACHE_DIR": ""},
     config=AutoConfig.from_pretrained(model_id)
