@@ -9,22 +9,21 @@ import openvino as ov
 from simple_tokenizer import SimpleTokenizer
 from misc import softmax
 
-model_vendor, model_name = [
-    [ 'TinyLlama',  'TinyLlama-1.1B-Chat-v1.0'],
-    [ 'Intel',      'neural-chat-7b-v3' ],
-][0]
+model_id = 'TinyLlama/TinyLlama-1.1B-Chat-v1.0'
+#model_id = 'Intel/neural-chat-7b-v3'
+model_vendor, model_name = model_id.split('/')
 
 model_precision = ['FP16', 'INT8', 'INT4'][2]
 
-print(f'LLM model: {model_vendor}/{model_name}, {model_precision}')
+print(f'LLM model: {model_id}, {model_precision}')
 
 #from transformers import AutoTokenizer
-#tokenizer = AutoTokenizer.from_pretrained(f'{model_vendor}/{model_name}')  # Fast and reliable :-)
-tokenizer = SimpleTokenizer(model_vendor, model_name)                       # (somewhat) compatible tokenizer with HuggingFace tokenizers (simple, slow, and dumb)
+#tokenizer = AutoTokenizer.from_pretrained(model_id)     # Fast and reliable :-)
+tokenizer = SimpleTokenizer(model_vendor, model_name)   # (somewhat) compatible tokenizer with HuggingFace tokenizers (simple, slow, and dumb)
 
 device = 'CPU'
 ov_core = ov.Core()
-ov_config={"PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": "1", "CACHE_DIR": ""}
+ov_config={"PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": "1", "CACHE_DIR": "./cache"}
 ov_model = ov_core.read_model(model=f'{model_name}/{model_precision}/openvino_model.xml')
 print(f'Compiling the model to {device}')
 compiled_model = ov.compile_model(ov_model, device, ov_config)
