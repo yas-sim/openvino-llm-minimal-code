@@ -10,13 +10,6 @@ logging.basicConfig(level=logging.INFO)
 
 class SimpleTokenizer:
     def __init__(self, model_vendor, model_name):
-        def get_token_info(token_name:str, special_tokens_map_json, vocab):
-            token_str = special_tokens_map_json.get(token_name)
-            if token_str is None:
-                return None, 0
-            if isinstance(token_str, dict):
-                token_str = token_str['content']
-            return token_str, vocab[token_str]
         self.logger = logging.getLogger(__name__)
         self.logger.info('You are using \'SimpleTokenizer\' which is low-performance.')
         self.tokenizer_dir = f'./{model_vendor}--{model_name}--tokenizer'
@@ -44,10 +37,18 @@ class SimpleTokenizer:
         with open(f'{self.tokenizer_dir}/special_tokens_map.json', encoding='utf8') as f:
             self.special_tokens_map_json = json.load(f)
 
-        self.bos_token, self.bos_token_id = get_token_info('bos_token', self.special_tokens_map_json, self.vocab)
-        self.eos_token, self.eos_token_id = get_token_info('eos_token', self.special_tokens_map_json, self.vocab)
-        self.pad_token, self.pad_token_id = get_token_info('pad_token', self.special_tokens_map_json, self.vocab)
-        self.unk_token, self.unk_token_id = get_token_info('unk_token', self.special_tokens_map_json, self.vocab)
+        def get_token_info(token_name:str) -> tuple[str, int]:
+            token_str = self.special_tokens_map_json.get(token_name)
+            if token_str is None:
+                return None, 0
+            if isinstance(token_str, dict):
+                token_str = token_str['content']
+            return (token_str, self.vocab[token_str])
+
+        self.bos_token, self.bos_token_id = get_token_info('bos_token')
+        self.eos_token, self.eos_token_id = get_token_info('eos_token')
+        self.pad_token, self.pad_token_id = get_token_info('pad_token')
+        self.unk_token, self.unk_token_id = get_token_info('unk_token')
 
     def encode(self, text:str) -> list[int]:
         token_ids = []
