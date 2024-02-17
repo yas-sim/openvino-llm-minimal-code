@@ -9,6 +9,7 @@
 |4|[inference-stream-openvino-only.py](inference-stream-openvino-only.py)|Run an LLM model with only OpenVINO.<br>This program doesn't require any DL frameworks such as TF or PyTorch. Also, this program doesn't even use the '`optimum-intel`' library or HuggingFace tokenizers to run. This program uses a simple and dumb tokenizer (that I wrote) instead of HF tokenizers.<br>Try swapping the tokenizer to HF tokenizer in case you see only garbage text from the program (uncomment `AutoTokenizer` and comment out `SimpleTokenizer`)| 
 |5|[inference-stream-openvino-only-no-kv-cache-slow-slow.py](inference-stream-openvino-only-no-kv-cache-slow-slow.py)|Same as program #4 but doesn't use KV-cache.<br>This program calculates KV values on every iteration and is very slow. You can compare the performance of #4 and #5 and understand how much KV-caching improves the LLM inference performance.|
 |6|[inference-stream-openvino-only-greedy.py](inference-stream-openvino-only-greedy.py)|Same as program #4 but uses 'greedy decoding' instead of sampling.<br>This program generates fixed output text because it always picks the most probability token ID from the predictions (=greedy decoding).|
+|7|[inference-stream-openvino-only-stateless.py](inference-stream-openvino-only-stateless.py)|Same as program #4 but supports **STATELESS** models (which does not use the internal state variables to keep KV-cache values inside of the model) instead of stateful models.|
 
 ## How to run
 
@@ -29,7 +30,8 @@ python download_model.py
 ```
 **Hint**: You can use `optimum-cli` tool to download the models from Huggingface hub, too. You need to install `optimum-intel` Python package to export the model for OpenVINO.  
 ```sh
-optimum-cli export openvino -m intel/neural-chat-7b-v3 --weight-format int4_sym_g64 neural-chat-7b-v3/INT4
+optimum-cli export openvino -m TinyLlama/TinyLlama-1.1B-Chat-v1.0 --weight-format int4_asym_g64 TinyLlama-1.1B-Chat-v1.0/INT4
+optimum-cli export openvino -m intel/neural-chat-7b-v3 --weight-format int4_asym_g64 neural-chat-7b-v3/INT4
 ```
 
 3. Run inference

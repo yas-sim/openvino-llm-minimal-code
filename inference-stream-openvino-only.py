@@ -6,7 +6,7 @@ import numpy as np
 import openvino as ov
 
 from simple_tokenizer import SimpleTokenizer
-from misc import softmax
+from misc import sampling
 
 model_id = 'TinyLlama/TinyLlama-1.1B-Chat-v1.0'
 #model_id = 'Intel/neural-chat-7b-v3'
@@ -66,11 +66,6 @@ temperature = 1.0
 top_p = 0.85
 top_k = 10
 
-# Limit the range of sampling parameters
-temperature = 1.0 if temperature <= 0 else temperature
-top_p = max(0.0, min(1.0, top_p))
-top_k = max(0.0, top_k)
-
 print(f'Sampling parameters - Temperature: {temperature}, Top-p: {top_p}, Top-k: {top_k}')
 
 prev_output = ''
@@ -85,31 +80,9 @@ for i in range(num_max_token_for_generation):
     # Run inference (to generate the logits for the next word prediction)
     response = infer_request.infer(inputs={'input_ids':input_ids, 'attention_mask':attention_mask, 'position_ids':position_ids, 'beam_idx':beam_idx})
 
-    # Basic post process (logits->probabilities, sort)
-    next_token_prob = softmax(response['logits'][0, -1, :])     # Apply softmax
-    next_token_prob /= temperature                              # Scale probabilities by 'temperature' parameter
-    sorted_index = np.argsort(next_token_prob)[::-1]            # Sort probability and generate an array of indices
+    logits = response['logits'][0, -1, :]
+    sampled_id = sampling(logits, temperature=temperature, top_k=top_k, top_p=top_p, do_sample=True)
 
-    # Top-p
-    sum_prob = 0
-    top_p_num = 0
-    for top_p_num in range(len(sorted_index)):
-        sum_prob += next_token_prob[sorted_index[top_p_num]]    # Accumulate the probability values
-        top_p_num += 1
-        if sum_prob >= top_p:                                   # Break when the accumlated probability exceeds the top-p value
-            break
-
-    # Top-k
-    top_k_num = top_k if top_k <= top_p_num else top_p_num      # Limit the samples by top-k
-
-    rand = np.random.rand() * top_p                             # Generate a random value for sampling (range = 0.0 ~ top_p)
-    sum_prob = 0
-    for sample in range(top_k_num):
-        sum_prob += next_token_prob[sorted_index[sample]]       # Accumulate the probability value
-        if sum_prob >= rand:                                    # Break when the accumulated probability exceeds sampling target value
-            break
-    
-    sampled_id = sorted_index[sample]                           # Pick a word ID (= predicted next word ID)
     if sampled_id == eos_token_id:
         print('\n*** EOS token detected.')
         break
@@ -119,7 +92,6 @@ for i in range(num_max_token_for_generation):
     prev_output = output_text
 
     # Supply only the last predicted (sampled) word ID as the model input from the 2nd iteration, and the latter
-    # ** This is possible only for the 'stateful' model with KV caching enabled. **
     input_ids      = np.array([[sampled_id]], dtype=np.int64)
     attention_mask = np.array([[1]], dtype=np.int64)
     position_ids   = np.array([[position]], dtype=np.int64)
