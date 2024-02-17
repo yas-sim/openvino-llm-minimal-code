@@ -12,8 +12,8 @@ def sampling(logits, temperature=1.0, top_k=10, top_p=0.85, do_sample=False):
     if do_sample:
         # Limit the range of sampling parameters
         temperature = 1.0 if temperature <= 0 else temperature
-        top_p = max(0.0, min(1.0, top_p))
-        top_k = max(0.0, top_k)
+        top_p = max(0.0, min(1.0, top_p))                           # 0.0 <= top_p <= 1.0
+        top_k = max(1.0, top_k)                                     # top_k >= 1.0
 
         next_token_prob /= temperature                              # Scale probabilities by 'temperature' parameter
         sorted_index = np.argsort(next_token_prob)[::-1]            # Sort probability and generate an array of indices
@@ -28,7 +28,7 @@ def sampling(logits, temperature=1.0, top_k=10, top_p=0.85, do_sample=False):
                 break
 
         # Top-k
-        top_k_num = top_k if top_k <= top_p_num else top_p_num      # Limit the samples by top-k
+        top_k_num = int(top_k if top_k <= top_p_num else top_p_num) # Limit the samples by top-k
 
         rand = np.random.rand() * top_p                             # Generate a random value for sampling (range = 0.0 ~ top_p)
         sum_prob = 0
@@ -39,6 +39,6 @@ def sampling(logits, temperature=1.0, top_k=10, top_p=0.85, do_sample=False):
         
         sampled_id = sorted_index[sample]                           # Pick a word ID (= predicted next word ID)
     else:
-        sampled_id = np.argmax(next_token_prob)
+        sampled_id = np.argmax(next_token_prob)                     # Pick the most high probability word ID (=greedy search)
 
     return sampled_id
