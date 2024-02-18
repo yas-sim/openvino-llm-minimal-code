@@ -2,6 +2,8 @@
 #  - Without 'optimum-intel', 'PyTorch' and HF-Tokenizers.
 #  This program uses sampling method to generate the output text.
 
+import os
+import json
 import numpy as np
 import openvino as ov
 
@@ -20,8 +22,6 @@ print(f'LLM model: {model_id}, {model_precision}')
 #tokenizer = AutoTokenizer.from_pretrained(model_id)     # Fast and reliable :-)
 tokenizer = SimpleTokenizer(model_vendor, model_name)   # (somewhat) compatible tokenizer with HuggingFace tokenizers (simple, slow, and dumb)
 
-import os
-import json
 with open(os.path.join(model_name, model_precision, 'config.json')) as f:
     config_file = json.load(f)
 num_attention_heads = config_file['num_attention_heads']

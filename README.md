@@ -28,6 +28,7 @@ pip install -r requirements.txt
 python download_model.py
 ```
 **Hint**: You can use `optimum-cli` tool to download the models from Huggingface hub, too. You need to install `optimum-intel` Python package to export the model for OpenVINO.  
+**Hint**: You can generate a *stateless* model by adding `--disable-stateful` option.
 ```sh
 optimum-cli export openvino -m TinyLlama/TinyLlama-1.1B-Chat-v1.0 --weight-format int4_asym_g64 TinyLlama-1.1B-Chat-v1.0/INT4
 optimum-cli export openvino -m intel/neural-chat-7b-v3 --weight-format int4_asym_g64 neural-chat-7b-v3/INT4
