@@ -1,8 +1,8 @@
 from optimum.intel.openvino import OVModelForCausalLM
 from transformers import AutoTokenizer, AutoConfig
 
-#model_id = 'TinyLlama/TinyLlama-1.1B-Chat-v1.0'
-model_id = 'Intel/neural-chat-7b-v3'
+model_id = 'TinyLlama/TinyLlama-1.1B-Chat-v1.0'
+#model_id = 'Intel/neural-chat-7b-v3'
 model_vendor, model_name = model_id.split('/')
 
 model_precision = ['FP16', 'INT8', 'INT4', 'INT4_stateless'][2]
